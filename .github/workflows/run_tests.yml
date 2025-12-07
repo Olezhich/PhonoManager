@@ -1,0 +1,21 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy sources
+        uses: actions/checkout@4
+
+      - name: Setup bats
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bats
+
+      - name: Run tests
+        run: |
+          bats tests/
