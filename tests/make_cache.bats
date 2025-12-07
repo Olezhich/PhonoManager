@@ -18,13 +18,18 @@ setup(){
 
     cp "${MAKEFILE_PATH}" ./Makefile
 
-    make() {
-        command make "$@"
-    }
 }
 
 teardown() {
     rm -rf "$TEST_DIR"
+}
+
+get_mtime() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    stat -f %m "$1"
+  else
+    stat -c %Y "$1"
+  fi
 }
 
 @test "make_cache creates cache only where target files exist" {
@@ -43,11 +48,11 @@ teardown() {
   fixture_music_lib "$TEST_DIR"
 
   make Playlist.m3u8
-  mtime1=$(stat -f %m music/album_1/.phono_manager.cache)
+  mtime1=$(get_mtime music/album_1/.phono_manager.cache)
 
   sleep 1
   make Playlist.m3u8
-  mtime2=$(stat -f %m music/album_1/.phono_manager.cache)
+  mtime2=$(get_mtime music/album_1/.phono_manager.cache)
 
   [ "$mtime1" -eq "$mtime2" ]
 }
@@ -57,13 +62,13 @@ teardown() {
 
     make Playlist.m3u8
 
-    mtime1=$(stat -f %m Playlist.m3u8)
+    mtime1=$(get_mtime Playlist.m3u8)
 
     sleep 2
     touch music/album_1/album.flac
 
     make Playlist.m3u8
-    mtime2=$(stat -f %m Playlist.m3u8)
+    mtime2=$(get_mtime Playlist.m3u8)
 
   [ "$mtime2" -gt "$mtime1" ]
 }
