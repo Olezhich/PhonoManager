@@ -8,19 +8,22 @@ UNIQUE_DIRS_W_TARGET_FILES := $(sort $(DIRS_W_TARGET_FILES))
 
 CACHE_TARGETS := $(addsuffix $(CACHE), $(UNIQUE_DIRS_W_TARGET_FILES))
 
+path_flac := music/album_1/album_1.flac
+path_cue  := music/album_1/album_1.cue
+
 .PHONY: clear_cache
 
 Playlist.m3u8: $(CACHE_TARGETS)
 	@touch $@
 
 
-.SECONDEXPANSION:
-%$(CACHE): $$(wildcard $$(addprefix $$(dir %)*.,$(TARGET_FILE_EXT)))
-	@touch $@
-
-
 clear_cache:
 	@find . -name '$(CACHE)' -delete
+
+
+.SECONDEXPANSION:
+%$(CACHE): $$(wildcard $$(addprefix $$(dir $$(CACHE_TARGETS))*., $$(TARGET_FILE_EXT)))
+	touch $@
 
 
 
