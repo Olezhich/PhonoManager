@@ -1,24 +1,35 @@
+# External variables
+
+INPUT_DIR ?= .
+
+# Targets
+
 TARGET_FILE_EXT = cue flac ape wav mp3 m4a
 
 CACHE = .phono_manager.cache
 
-DIRS_W_TARGET_FILES := $(sort $(dir $(shell find . -type f \( -false $(foreach ext,$(TARGET_FILE_EXT),-o -name "*.$(ext)") \) 2>/dev/null)))
+DIRS_W_TARGET_FILES := $(sort $(dir $(shell find $(INPUT_DIR) -type f \( -false $(foreach ext,$(TARGET_FILE_EXT),-o -name "*.$(ext)") \) 2>/dev/null)))
 
 UNIQUE_DIRS_W_TARGET_FILES := $(sort $(DIRS_W_TARGET_FILES))
 
 CACHE_TARGETS := $(addsuffix $(CACHE), $(UNIQUE_DIRS_W_TARGET_FILES))
 
-path_flac := music/album_1/album_1.flac
-path_cue  := music/album_1/album_1.cue
+
+
+# Scripts
+
+PLAYLIST_MAKE := ./src/plst_maker.sh
+
+# Rules
 
 .PHONY: clear_cache
 
 Playlist.m3u8: $(CACHE_TARGETS)
-	@touch $@
+	$(PLAYLIST_MAKE) -i $(INPUT_DIR) -o $(INPUT_DIR)/Playlist.m3u8
 
 
 clear_cache:
-	@find . -name '$(CACHE)' -delete
+	@find $(INPUT_DIR) -name '$(CACHE)' -delete
 
 
 .SECONDEXPANSION:
