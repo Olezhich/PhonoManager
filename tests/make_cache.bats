@@ -1,4 +1,4 @@
-MAKEFILE_PATH="${BATS_TEST_DIRNAME}/../make_cache"
+# MAKEFILE_PATH="${BATS_TEST_DIRNAME}/../make_cache"
 
 fixture_music_lib(){
     mkdir -p "$1/music/album_1"
@@ -13,11 +13,17 @@ fixture_music_lib(){
 }
 
 setup(){
+    export PROJECT_ROOT="${BATS_TEST_DIRNAME}/.."
+
     TEST_DIR="$(mktemp -d)"
     cd "$TEST_DIR"
 
-    cp "${MAKEFILE_PATH}" ./Makefile
+    # cp "${MAKEFILE_PATH}" ./Makefile
 
+}
+
+make_cache(){
+  run make -C "$PROJECT_ROOT" -f "$PROJECT_ROOT/make_cache" INPUT_DIR="$TEST_DIR" Playlist.m3u8
 }
 
 teardown() {
@@ -35,7 +41,11 @@ get_mtime() {
 @test "make_cache creates cache only where target files exist" {
     fixture_music_lib "$TEST_DIR"
 
-    run make Playlist.m3u8
+    make_cache
+    if [ "$status" -ne 0 ]; then 
+      echo "$output"
+    fi
+    
     [ "$status" -eq 0 ]
 
     [ -f music/album_1/.phono_manager.cache ]
@@ -47,11 +57,11 @@ get_mtime() {
 @test "cache mtime unchanged if files unchanged" {
   fixture_music_lib "$TEST_DIR"
 
-  make Playlist.m3u8
+  make_cache
   mtime1=$(get_mtime music/album_1/.phono_manager.cache)
 
   sleep 1
-  make Playlist.m3u8
+  make_cache
   mtime2=$(get_mtime music/album_1/.phono_manager.cache)
 
   [ "$mtime1" -eq "$mtime2" ]
@@ -60,14 +70,14 @@ get_mtime() {
 @test "cache mtime updates when file changes" {
     fixture_music_lib "$TEST_DIR"
 
-    make Playlist.m3u8
+    make_cache
 
     mtime1=$(get_mtime Playlist.m3u8)
 
     sleep 2
     touch music/album_1/album.flac
 
-    make Playlist.m3u8
+    make_cache
     mtime2=$(get_mtime Playlist.m3u8)
 
   [ "$mtime2" -gt "$mtime1" ]
