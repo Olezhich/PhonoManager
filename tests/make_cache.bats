@@ -45,12 +45,21 @@ get_mtime() {
     if [ "$status" -ne 0 ]; then 
       echo "$output"
     fi
+
+    cat Playlist.m3u8
     
     [ "$status" -eq 0 ]
 
     [ -f music/album_1/.phono_manager.cache ]
     [ -f music/album_2/.phono_manager.cache ]
     [ ! -f music/album_empty/.phono_manager.cache ]
+
+    run grep -q 'album_1.cue$' Playlist.m3u8
+    [ "$status" -eq 0 ]
+    run grep -q 'track_1.flac$' Playlist.m3u8
+    [ "$status" -eq 0 ]
+    run grep -q 'track_2.flac$' Playlist.m3u8
+    [ "$status" -eq 0 ]
 }
 
 
