@@ -36,36 +36,36 @@ fi
 
 
 
-# load_ignore_patterns() {
-#   local ignore_path="$1"
-#   if [[ -f "$ignore_path" ]]; then
-#     while IFS= read -r line; do
-#       [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
-#       EXCLUDE_PATTERNS+=("$line")
-#     done < "$ignore_path"
-#   fi
-# }
+load_ignore_patterns() {
+  local ignore_path="$1"
+  if [[ -f "$ignore_path" ]]; then
+    while IFS= read -r line; do
+      [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+      EXCLUDE_PATTERNS+=("$line")
+    done < "$ignore_path"
+  fi
+}
 
 should_exclude() {
-  local filepath="$1"  # например: /music/My_awesome/song.mp3
-  local rel_path="${filepath#$INPUT_DIR/}"  # например: My_awesome/song.mp3
+  local filepath="$1"
+  local rel_path="${filepath#$INPUT_DIR/}"
 
   for pat in "${EXCLUDE_PATTERNS[@]}"; do
-    # Проверяем, соответствует ли путь паттерну
-    if [[ "$rel_path" == $pat ]]; then
-      return 0  # исключаем
-    fi
-    # Или если паттерн — это директория (заканчивается на /)
-    if [[ "$pat" == */ ]]; then
-      if [[ "$rel_path" == $pat* ]]; then
-        return 0  # исключаем всё в этой директории
+    if [[ "$pat" == */*"/" ]]; then
+      local dir_pat="${pat%/}"
+      if [[ "$rel_path" == $dir_pat/* ]]; then
+        return 0
+      fi
+    else
+      if [[ "$rel_path" == $pat ]]; then
+        return 0
       fi
     fi
   done
-  return 1  # не исключаем
+  return 1
 }
 
-# load_ignore_patterns "$IGNORE_FILE"
+load_ignore_patterns "$IGNORE_FILE"
 
 # Main Logic
 
