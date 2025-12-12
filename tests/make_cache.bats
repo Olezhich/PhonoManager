@@ -73,7 +73,7 @@ get_mtime() {
   make_cache
   mtime1=$(get_mtime music/album_1/.phono_manager.cache)
 
-  sleep 1
+  sleep 2
   make_cache
   mtime2=$(get_mtime music/album_1/.phono_manager.cache)
 
