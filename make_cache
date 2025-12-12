@@ -1,6 +1,7 @@
 # External variables
 
 INPUT_DIR ?= .
+IGNORE_FILE ?= .ignore
 
 # Targets
 
@@ -25,7 +26,7 @@ PLAYLIST_MAKE := ./src/plst_maker.sh
 .PHONY: clear_cache
 
 Playlist.m3u8: $(CACHE_TARGETS)
-	$(PLAYLIST_MAKE) -i $(INPUT_DIR) -o $(INPUT_DIR)/Playlist.m3u8
+	$(PLAYLIST_MAKE) -i $(INPUT_DIR) -o $(INPUT_DIR)/Playlist.m3u8 -g $(INPUT_DIR)/$(IGNORE_FILE)
 
 
 clear_cache:

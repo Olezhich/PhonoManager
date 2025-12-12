@@ -1,15 +1,19 @@
-# MAKEFILE_PATH="${BATS_TEST_DIRNAME}/../make_cache"
-
 fixture_music_lib(){
     mkdir -p "$1/music/album_1"
     mkdir -p "$1/music/album_2"
     mkdir -p "$1/music/album_empty"
+
+    mkdir -p "$1/music/album_prohibited"
 
     touch "$1/music/album_1/album_1.cue"
     touch "$1/music/album_1/album_1.flac"
 
     touch "$1/music/album_2/track_1.flac"
     touch "$1/music/album_2/track_2.flac"
+
+    touch "$1/music/album_prohibited/album_prohibited.cue"
+
+    echo "music/album_prohibited/*" > "$1/.ignore"
 }
 
 setup(){
@@ -17,13 +21,11 @@ setup(){
 
     TEST_DIR="$(mktemp -d)"
     cd "$TEST_DIR"
-
-    # cp "${MAKEFILE_PATH}" ./Makefile
-
 }
 
 make_cache(){
   run make -C "$PROJECT_ROOT" -f "$PROJECT_ROOT/make_cache" INPUT_DIR="$TEST_DIR" Playlist.m3u8
+  echo "$output"
 }
 
 teardown() {
@@ -60,6 +62,8 @@ get_mtime() {
     [ "$status" -eq 0 ]
     run grep -q 'track_2.flac$' Playlist.m3u8
     [ "$status" -eq 0 ]
+    run grep -q 'album_prohibited.cue' Playlist.m3u8
+    [ "$status" -ne 0 ]
 }
 
 
